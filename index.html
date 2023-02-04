@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@700&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.2/css/bulma.min.css">
+  <link rel="stylesheet" type="text/css"
+    href="https://cdn.jsdelivr.net/npm/@mediapipe/control_utils@0.1/control_utils.css" crossorigin="anonymous">
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils@0.1/camera_utils.js"
+    crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/control_utils@0.1/control_utils.js"
+    crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils@0.2/drawing_utils.js"
+    crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/pose@0.2/pose.js" crossorigin="anonymous"></script>
+</head>
+
+<style>
+  html {
+    padding: 0;
+    margin: 0;
+    border: 0;
+    outline: 0;
+  }
+
+  body {
+    margin: 0;
+    padding: 0;
+    height: 100vh;
+    width: 100vw;
+    background: url("./imgs/background.jpeg");
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center;
+    overflow-y: hidden;
+  }
+
+  .rectangles {
+    position: absolute;
+    display: flex;
+    justify-content: space-between;
+    margin-top: 30px;
+    margin-left: 30px;
+    padding-right: 30px;
+    width: 900px;
+    height: 20px;
+    z-index: 10;
+  }
+
+
+
+  .rectangles-punches {
+    position: absolute;
+    margin-top: 30px;
+    margin-left: 20px;
+    padding-right: 30px;
+    width: 900px;
+    height: 20px;
+    z-index: 10;
+  }
+
+  .first-row {
+    display: flex;
+    justify-content: space-between;
+  }
+
+  .second-row {
+    margin-top: 50px;
+    display: flex;
+    justify-content: space-between;
+  }
+
+  .text {
+    font-size: large;
+    color: red;
+    font-weight: 700;
+  }
+
+  .rectangle {
+    position: relative;
+    height: 100%;
+    background-color: red;
+    z-index: 10;
+  }
+
+
+
+
+  .counter-div {
+    position: absolute;
+    margin-top: 100px;
+    margin-left: 780px;
+    z-index: 10;
+  }
+
+  .count-text {
+    font-size: x-large;
+    color: greenyellow;
+    font-weight: 700;
+  }
+
+  .count {
+    font-size: x-large;
+    color: greenyellow;
+    font-weight: 700;
+  }
+
+
+
+  .angle-div,
+  .arrow-div {
+    position: absolute;
+    margin-top: 5px;
+    margin-left: 10px;
+    z-index: 10;
+    -webkit-text-stroke-width: 2px;
+  }
+
+  .cross-div {
+    position: absolute;
+    z-index: 10;
+
+  }
+
+  #angle-knee,
+  #angle-hip {
+    position: relative;
+    color: greenyellow;
+    font-size: large;
+    font-weight: 700;
+  }
+
+  .navbar {
+    display: flex;
+    background: transparent;
+  }
+
+  .controls {
+    margin-left: 50px;
+
+  }
+
+  .heading {
+    color: white;
+    font-size: 30px;
+    font-family: "Roboto", sans-serif;
+    font-weight: 700;
+  }
+
+  .select-box {
+    width: 250px;
+    height: 40px;
+    font-size: x-large;
+  }
+
+  .toggle-angles,
+  .toggle-arrows,
+  .toggle-bars,
+  .color-schemes {
+    margin-top: 20px;
+  }
+
+  .toggle-angles-button,
+  .toggle-arrow-button,
+  .toggle-bars-button,
+  .toggle-color-scheme {
+    border: none;
+    cursor: pointer;
+    outline: none;
+    width: 250px;
+    height: 40px;
+    font-size: x-large;
+    background: #0B0B45;
+    color: white;
+  }
+
+  .login {
+    width: 100%;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .login-form {
+    width: 400px;
+    height: 400px;
+    background: white;
+    border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+    padding: 30px;
+  }
+
+  .heading1 {
+    font-size: 30px;
+    font-weight: 700;
+    margin-bottom: 20px;
+    color: #0B0B45;
+  }
+
+  .login-form input {
+    width: 100%;
+    height: 50px;
+    margin-top: 20px;
+    border: 3px solid #0B0B45;
+    border-radius: 20px;
+    padding: 10px;
+  }
+
+  #login-button {
+    width: 100%;
+    height: 50px;
+    margin-top: 20px;
+    border: 3px solid #0B0B45;
+    border-radius: 20px;
+    padding: 10px;
+    background: #0B0B45;
+    color: white;
+    font-size: 20px;
+    font-weight: 700;
+    cursor: pointer;
+  }
+
+  #login-button:hover {
+    background: #000080;
+  }
+
+  #login-info {
+    margin-top: 20px;
+  }
+
+  .control-screen {
+    position: absolute;
+    width: 24px;
+    height: 24px;
+    font-size: xx-large;
+    color: white;
+    z-index: 20;
+    margin-left: 850px;
+    margin-top: 550px;
+    cursor: pointer;
+  }
+
+  .panel-block {
+    width: 100%;
+    height: 100%;
+  }
+
+  #excercise {
+    width: 900px;
+    height: 600px;
+  }
+
+  #cross-hip,
+  #cross-knee,
+  #cross-shoulder,
+  #cross-elbow,
+  #r-cross-hip,
+  #r-cross-knee,
+  #r-cross-shoulder,
+  #r-cross-elbow {
+    display: none;
+    position: relative;
+    font-size: 20px;
+  }
+</style>
+
+<body>
+
+
+  <div class="login" id="login">
+    <div class="login-form">
+      <h1 class="heading1">Login</h1>
+      <input type="text" placeholder="Username" id="username">
+      <input type="password" placeholder="Password" id="password">
+
+      <button id="login-button">Login</button>
+
+      <span id="login-info">
+        You need to login to use this app.
+      </span>
+    </div>
+  </div>
+
+
+  <!-- CONTENTS -->
+  <div class="container" id="container" style="padding-top: 20px; display: none;">
+    <div class="navbar">
+      <div class="name">
+        <span class="heading">Excercise Detection</span>
+      </div>
+    </div>
+
+    <div class="columns">
+
+      <!-- WEBCAM INPUT -->
+      <div class="column" style="display: none;">
+        <article class="panel is-info">
+          <p class="panel-heading">
+            Webcam Input
+          </p>
+          <div class="panel-block ">
+            <video class="input_video5"></video>
+          </div>
+        </article>
+      </div>
+
+      <!-- MEDIAPIPE OUTPUT -->
+
+      <div class="column" style="display: flex; margin-top: 20px;">
+        <article id="excercise" class="is-info">
+
+          <div id="rectangles" class="rectangles" style="display: none;">
+            <div class="first-item">
+              <div id="hip-text" class="text">
+                <span>Hips</span>
+              </div>
+              <div id="hip-o" class="rectangle">
+
+              </div>
+            </div>
+            <div class="second-item">
+              <div id="knee-text" class="text">
+                <span>Knees</span>
+              </div>
+              <div id="knee-o" class="rectangle">
+
+              </div>
+            </div>
+
+            <div class="third-item" id="third-item" style="display: none;">
+              <div id="shoulder-text" class="text">
+                <span>Shoulders</span>
+              </div>
+              <div id="shoulder-o" class="rectangle">
+
+              </div>
+            </div>
+
+            <div class="fourth-item" id="fourth-item" style="display: none;">
+              <div id="elbow-text" class="text">
+                <span>Elbows</span>
+              </div>
+              <div id="elbow-o" class="rectangle">
+
+              </div>
+            </div>
+          </div>
+
+          <div id="rectangles-punches" class="rectangles-punches" style="display: none;">
+            <div class="first-row">
+              <div id="pucnhes-first">
+                <div id="elbow-right" class="text">
+                  <span>Right Elbow</span>
+                </div>
+                <div id="elbow-right-o" class="rectangle"></div>
+              </div>
+              <div id="pucnhes-second">
+                <div id="elbow-left" class="text">
+                  <span>Left Elbow</span>
+                </div>
+                <div id="elbow-left-o" class="rectangle"></div>
+              </div>
+              <div id="pucnhes-third">
+                <div id="hip-right" class="text">
+                  <span>Right Hip</span>
+                </div>
+                <div id="hip-right-o" class="rectangle"></div>
+              </div>
+              <div id="pucnhes-fourth">
+                <div id="hip-left" class="text">
+                  <span>Left Hip</span>
+                </div>
+                <div id="hip-left-o" class="rectangle"></div>
+              </div>
+              <div id="pucnhes-fifth">
+                <div id="knee-right" class="text">
+                  <span>Right Knee</span>
+                </div>
+                <div id="knee-right-o" class="rectangle"></div>
+              </div>
+              <div id="pucnhes-sixth">
+                <div id="knee-left" class="text">
+                  <span>Left Knee</span>
+                </div>
+                <div id="knee-left-o" class="rectangle"></div>
+              </div>
+            </div>
+
+            <div class="second-row">
+
+            </div>
+          </div>
+
+          <div class="control-screen" id="control-screen">
+            &#x26F6;
+          </div>
+
+          <div class="arrow-div" id="arrow-div">
+            <canvas id="myCanvas" width="900px" height="600px">
+              Your browser does not support the canvas tag.
+            </canvas>
+          </div>
+          <div class="angle-div" id="angle-div">
+            <div id="angle-hip">
+
+            </div>
+
+            <div id="angle-knee">
+
+            </div>
+          </div>
+
+
+          <div class="cross-div" id="cross-div">
+            <div id="cross-hip" style="color: orange; font-size: xx-large;">
+              &#10006;
+            </div>
+
+            <div id="cross-knee" style="color: orange; font-size: xx-large;">
+              &#10006;
+            </div>
+
+            <div id="cross-shoulder" style="color: orange; font-size: xx-large;">
+              &#10006;
+            </div>
+
+            <div id="cross-elbow" style="color: orange; font-size: xx-large;">
+              &#10006;
+            </div>
+            <div id="r-cross-hip" style="color: orange; font-size: xx-large;">
+              &#10006;
+            </div>
+
+            <div id="r-cross-knee" style="color: orange; font-size: xx-large;">
+              &#10006;
+            </div>
+
+            <div id="r-cross-shoulder" style="color: orange; font-size: xx-large;">
+              &#10006;
+            </div>
+
+            <div id="r-cross-elbow" style="color: orange; font-size: xx-large;">
+              &#10006;
+            </div>
+          </div>
+
+
+          <div id="counter-div" class="counter-div" style="display: none;">
+            <span class="count-text">Count: </span>
+            <span id="count" class="count">0</span>
+          </div>
+          <div class="panel-block" style="position: relative; z-index:1;">
+            <canvas class="output5" width="900px" height="600px"></canvas>
+          </div>
+        </article>
+
+        <div class="controls">
+          <span class="heading" style="font-size: 24px;">Select Excercise</span>
+          <select id="video-transform" class="select-box">
+            <option value="bridge" selected>Bridge</option>
+            <option value="squats">Squats</option>
+            <option value="punches">Punches</option>
+          </select>
+
+          <div class="toggle-angles">
+            <button class="toggle-angles-button toggle-buttons" id="toggle-angle">
+              Toggle Angle Visibility
+            </button>
+          </div>
+          <div class="toggle-arrows">
+            <button class="toggle-arrow-button toggle-buttons" id="toggle-arrow">
+              Toggle Arrow Visibility
+            </button>
+          </div>
+          <div class="toggle-bars">
+            <button class="toggle-bars-button toggle-buttons " id="toggle-bars">
+              Toggle Accuracy Bars
+            </button>
+          </div>
+
+          <div class="color-schemes">
+            <button class="toggle-color-scheme " id="toggle-scheme">
+              Change Color Scheme
+            </button>
+          </div>
+
+
+
+        </div>
+
+      </div>
+    </div>
+
+    <div class="loading">
+      <div class="spinner"></div>
+    </div>
+    <div style="display: none;" class="control5">
+    </div>
+
+    <!-- A button to toggle arrows and angles visibility -->
+    <script type="text/javascript" src="./js/pose.js"></script>
+    <script type="text/javascript" src="./js/bridge_detection.js"></script>
+    <script type="text/javascript" src="./js/helper.js"></script>
+    <script type="text/javascript" src="./js/squats.js"></script>
+    <script type="text/javascript" src="./js/punches.js"></script>
+</body>
+
+</html>
